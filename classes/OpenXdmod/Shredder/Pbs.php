@@ -271,10 +271,13 @@ class Pbs extends Shredder
 
         // Special cases for SDSC Comet and other versions of PBS.
         if (!array_key_exists('resources_used_gpus', $job) || $job['resources_used_gpus'] === 0) {
-            if (array_key_exists('resource_list_gpus', $job)) {
-                $job['resources_used_gpus'] = $job['resource_list_gpus'];
-            } elseif (array_key_exists('resource_list_ngpus', $job)) {
+            // Clemson uses ngpus as the key in the resource list.
+	    if (array_key_exists('resource_list_ngpus', $job)) {
+                $total_gpu = $job['resource_list_ngpus'];
                 $job['resources_used_gpus'] = $job['resource_list_ngpus'];
+	    // SDSC Comet
+            } elseif (array_key_exists('resource_list_gpus', $job)) {
+                $job['resources_used_gpus'] = $job['resource_list_gpus'];
             } elseif (array_key_exists('resource_list_nodect', $job)) {
                 $nodesData = $this->resourceParser->parseResourceListNodes($job['resource_list_nodect']);
                 $job['resources_used_gpus'] = $this->resourceParser->getGpuCountFromResourceListNodes($nodesData);
